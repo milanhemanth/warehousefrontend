@@ -7,7 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
 import Inventory from "./pages/Inventory";
 import Users from "./pages/Users";
-
+import StockHistory from "./pages/StockHistory";
 import Layout from "./components/Layout";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
@@ -57,6 +57,17 @@ function App() {
           <ProtectedRoute>
             <Layout>
               <Inventory />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/stock-history"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <StockHistory />
             </Layout>
           </ProtectedRoute>
         }

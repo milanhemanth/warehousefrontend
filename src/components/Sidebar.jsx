@@ -24,6 +24,10 @@ function Sidebar() {
           Inventory
         </Link>
 
+        <Link to="/stock-history">
+  Stock History
+</Link>
+
         <Link to="/users">
           Users
         </Link>
