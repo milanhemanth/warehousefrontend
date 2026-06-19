@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-
 import api from "../services/api";
 import Modal from "../components/Modal";
+import { toast } from "react-toastify";
 
 function Categories() {
-  const navigate = useNavigate();
-
   const [categories, setCategories] = useState([]);
   const [name, setName] = useState("");
   const [editingId, setEditingId] = useState(null);
@@ -34,7 +31,9 @@ function Categories() {
 
       setCategories(response.data);
     } catch (error) {
-      console.error(error);
+      toast.error(
+        "Failed to load categories"
+      );
     }
   };
 
@@ -49,10 +48,18 @@ function Categories() {
             name,
           }
         );
+
+        toast.success(
+          "Category updated successfully"
+        );
       } else {
         await api.post("/categories", {
           name,
         });
+
+        toast.success(
+          "Category added successfully"
+        );
       }
 
       setName("");
@@ -60,7 +67,9 @@ function Categories() {
 
       fetchCategories();
     } catch (error) {
-      console.error(error);
+      toast.error(
+        "Failed to save category"
+      );
     }
   };
 
@@ -70,20 +79,21 @@ function Categories() {
         `/categories/${id}`
       );
 
+      toast.success(
+        "Category deleted successfully"
+      );
+
       fetchCategories();
     } catch (error) {
-      console.error(error);
+      toast.error(
+        "Failed to delete category"
+      );
     }
   };
 
   const handleEdit = (category) => {
     setName(category.name);
     setEditingId(category.id);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
   };
 
   const filteredCategories =
@@ -95,17 +105,25 @@ function Categories() {
 
   return (
     <div className="min-h-screen bg-slate-950 p-6">
-      <div className="flex justify-between items-center mb-6">
+
+      <div className="mb-6">
         <h1 className="text-3xl font-bold text-white">
           Categories
         </h1>
 
-        <button
-          onClick={handleLogout}
-          className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-white font-semibold"
-        >
-          Logout
-        </button>
+        <p className="text-slate-400 mt-1">
+          Organize products by category
+        </p>
+      </div>
+
+      <div className="bg-gradient-to-r from-purple-600 to-purple-800 rounded-xl p-5 text-white shadow-lg mb-6 w-fit">
+        <h2 className="text-sm opacity-80">
+          Total Categories
+        </h2>
+
+        <p className="text-3xl font-bold">
+          {categories.length}
+        </p>
       </div>
 
       <div className="flex justify-between items-center mb-6">
@@ -123,7 +141,7 @@ function Categories() {
           onClick={() =>
             setShowAddModal(true)
           }
-          className="bg-blue-600 hover:bg-blue-700 px-5 py-3 rounded-lg text-white font-semibold"
+          className="bg-blue-600 hover:bg-blue-700 hover:scale-105 transition-all duration-300 px-5 py-3 rounded-lg text-white font-semibold"
         >
           Add Category
         </button>
@@ -148,10 +166,22 @@ function Categories() {
               (category) => (
                 <tr
                   key={category.id}
-                  className="border-t border-slate-700"
+                  className="border-t border-slate-700 hover:bg-slate-800/50 transition"
                 >
-                  <td className="text-slate-300 p-4">
-                    {category.name}
+                  <td className="p-4">
+                    <div className="flex items-center gap-3">
+
+                      <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold">
+                        {category.name.charAt(
+                          0
+                        )}
+                      </div>
+
+                      <span className="text-slate-300">
+                        {category.name}
+                      </span>
+
+                    </div>
                   </td>
 
                   <td className="p-4 flex gap-2">
@@ -160,6 +190,7 @@ function Categories() {
                         handleEdit(
                           category
                         );
+
                         setShowAddModal(
                           true
                         );
@@ -174,6 +205,7 @@ function Categories() {
                         setDeleteId(
                           category.id
                         );
+
                         setShowDeleteModal(
                           true
                         );

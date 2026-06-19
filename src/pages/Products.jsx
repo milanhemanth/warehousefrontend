@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
 import Modal from "../components/Modal";
+import { toast } from "react-toastify";
 
 function Products() {
   const [products, setProducts] = useState([]);
@@ -29,6 +30,8 @@ function Products() {
     useState("");
   const [categoryId, setCategoryId] =
     useState("");
+  const [imageUrl, setImageUrl] =
+    useState("");
 
   useEffect(() => {
     fetchProducts();
@@ -43,7 +46,9 @@ function Products() {
 
       setProducts(response.data);
     } catch (error) {
-      console.error(error);
+      toast.error(
+        "Failed to load products"
+      );
     }
   };
 
@@ -55,19 +60,26 @@ function Products() {
 
       setCategories(response.data);
     } catch (error) {
-      console.error(error);
+      toast.error(
+        "Failed to load categories"
+      );
     }
   };
-
   const handleDelete = async (id) => {
     try {
       await api.delete(
         `/products/${id}`
       );
 
+      toast.success(
+        "Product deleted successfully"
+      );
+
       fetchProducts();
     } catch (error) {
-      console.error(error);
+      toast.error(
+        "Failed to save product"
+      );
     }
   };
 
@@ -84,6 +96,9 @@ function Products() {
         <h1 className="text-3xl font-bold text-white">
           Products
         </h1>
+        <p className="text-slate-400 mt-1">
+          Manage warehouse products and inventory
+        </p>
       </div>
 
       <div className="flex justify-between mb-6">
@@ -142,10 +157,23 @@ function Products() {
               (product) => (
                 <tr
                   key={product.id}
-                  className="border-t border-slate-700"
+                  className="border-t border-slate-700 hover:bg-slate-800/50 transition"
                 >
-                  <td className="p-4 text-slate-300">
-                    {product.name}
+                  <td className="p-4">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={
+                          product.imageUrl ||
+                          "https://via.placeholder.com/50"
+                        }
+                        alt={product.name}
+                        className="w-16 h-16 rounded-xl object-cover border border-slate-600"
+                      />
+
+                      <span className="text-slate-300">
+                        {product.name}
+                      </span>
+                    </div>
                   </td>
 
                   <td className="p-4 text-slate-300">
@@ -154,12 +182,24 @@ function Products() {
                     }
                   </td>
 
-                  <td className="p-4 text-slate-300">
-                    {product.quantity}
+                  <td className="p-4">
+                    {product.quantity === 0 ? (
+                      <span className="px-3 py-1 rounded-full bg-red-500/20 text-red-400">
+                        Out of Stock
+                      </span>
+                    ) : product.quantity < 10 ? (
+                      <span className="px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-400">
+                        Low Stock ({product.quantity})
+                      </span>
+                    ) : (
+                      <span className="px-3 py-1 rounded-full bg-green-500/20 text-green-400">
+                        In Stock ({product.quantity})
+                      </span>
+                    )}
                   </td>
 
                   <td className="p-4 text-slate-300">
-                    ₹{product.price}
+                    ₹{Number(product.price).toLocaleString()}
                   </td>
 
                   <td className="p-4 text-slate-300">
@@ -191,6 +231,7 @@ function Products() {
                         setPrice(
                           product.price
                         );
+                        setImageUrl(product.imageUrl || "");
 
                         setCategoryId(
                           product
@@ -260,6 +301,7 @@ function Products() {
               price:
                 Number(price),
               categoryId,
+              imageUrl,
             };
 
             try {
@@ -268,13 +310,20 @@ function Products() {
                   `/products/${editingId}`,
                   payload
                 );
+
+                toast.success(
+                  "Product updated successfully"
+                );
               } else {
                 await api.post(
                   "/products",
                   payload
                 );
-              }
 
+                toast.success(
+                  "Product added successfully"
+                );
+              }
               fetchProducts();
 
               setShowAddModal(
@@ -289,7 +338,9 @@ function Products() {
               setPrice("");
               setCategoryId("");
             } catch (error) {
-              console.error(error);
+              toast.error(
+                "Failed to load products"
+              );
             }
           }}
           className="space-y-4"
@@ -339,7 +390,17 @@ function Products() {
             placeholder="Price"
             className="w-full bg-slate-800 text-white p-3 rounded"
           />
-
+          <input
+            type="text"
+            value={imageUrl}
+            onChange={(e) =>
+              setImageUrl(
+                e.target.value
+              )
+            }
+            placeholder="Image URL"
+            className="w-full bg-slate-800 text-white p-3 rounded"
+          />
           <select
             value={categoryId}
             onChange={(e) =>
